@@ -6,12 +6,15 @@ import com.example.TelegramTeacherBotThree.service.LessonService;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import static jdk.javadoc.internal.tool.Main.execute;
+
 @Service
 @Transactional
-public class LessonSeviceImpl implements LessonService
+public class LessonServiceImpl implements LessonService
 {
 
     @Resource
@@ -37,6 +40,29 @@ public class LessonSeviceImpl implements LessonService
 
                 Lesson lesson = new Lesson(title, numberHours);
                 saveLesson(lesson);
+            }
+        }
+    }
+
+    @Override
+    public void onUpdateReceived(Update update)
+    {
+        if (update.hasMessage() && update.getMessage().hasText())
+        {
+            long chatId = update.getMessage().getChatId();
+            String messageText = "Запись сохранена";
+
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(chatId);
+            sendMessage.setText(messageText);
+
+            try
+            {
+                execute(String.valueOf(sendMessage));
+            }
+            catch (Exception e)
+            {
+                System.out.println("Ошибка при отправке сообщения: " + e.getMessage());
             }
         }
     }

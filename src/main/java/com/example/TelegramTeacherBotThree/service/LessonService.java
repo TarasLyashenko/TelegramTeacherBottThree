@@ -8,4 +8,6 @@ public interface LessonService
     public void saveLesson(Lesson lesson);
 
     void addLesson(Update update);
+
+    void onUpdateReceived(Update update);
 }
