@@ -1,14 +1,21 @@
 package com.example.TelegramTeacherBotThree.bot;
 
+import com.example.TelegramTeacherBotThree.entity.Lesson;
+import com.example.TelegramTeacherBotThree.entity.Student;
 import com.example.TelegramTeacherBotThree.service.LessonService;
+import com.example.TelegramTeacherBotThree.service.StudentService;
 import jakarta.annotation.Resource;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 public class TelegramBot extends TelegramLongPollingBot
 {
     @Resource
     private LessonService lessonService;
+    @Resource
+    private StudentService studentService;
 
     public TelegramBot(String token)
     {
@@ -18,7 +25,56 @@ public class TelegramBot extends TelegramLongPollingBot
     @Override
     public void onUpdateReceived(Update update)
     {
-        lessonService.addLesson(update);
+        Message message = update.getMessage();
+        long chatId = update.getMessage().getChatId();
+
+        if (message.getText().startsWith("ДобавитьЛекцию"))
+        {
+            String[] parts = message.getText().split(" ");
+            if (parts.length == 3)
+            {
+                String title = parts[1];
+                int numberHours = Integer.parseInt(parts[2]);
+
+                Lesson lesson = new Lesson(title, numberHours);
+                lessonService.saveLesson(lesson);
+                sendMessage(chatId, "Запись сохранена");
+            }
+        }
+        else if (message.getText().startsWith("ДобавитьУченика"))
+        {
+            String[] parts = message.getText().split(" ");
+            if (parts.length == 3)
+            {
+                String name = parts[1];
+                String classroom = parts[2];
+
+                Student student = new Student(name,classroom);
+                studentService.saveStudent(student);
+                sendMessage(chatId, "Ученик сохранен");
+            }
+        }
+        else
+        {
+            sendMessage(chatId, "Команда не распознана");
+        }
+        sendMessage(chatId, "Обработка завершена");
+    }
+
+    private void sendMessage(long chatId, String text)
+    {
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setText(text);
+
+        try
+        {
+            execute(sendMessage);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Ошибка при отправке сообщения: " + e.getMessage());
+        }
     }
 
     @Override
