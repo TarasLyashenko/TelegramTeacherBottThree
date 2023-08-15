@@ -49,10 +49,14 @@ public class TelegramBot extends TelegramLongPollingBot
                 String name = parts[1];
                 String classroom = parts[2];
 
-                Student student = new Student(name,classroom);
+                Student student = new Student(name, classroom);
                 studentService.saveStudent(student);
                 sendMessage(chatId, "Ученик сохранен");
             }
+        }
+        else if (message.getText().startsWith("ПоказатьВсехУчеников"))
+        {
+            sendMessage(chatId, studentService.seeAllStudent());
         }
         else
         {

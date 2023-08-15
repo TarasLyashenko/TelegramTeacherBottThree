@@ -22,4 +22,9 @@ public class Student
         this.classroom = classroom;
         this.name = name;
     }
+
+    public Student()
+    {
+
+    }
 }
